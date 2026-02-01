@@ -105,7 +105,7 @@ Nano Banana Pro is Gemini's image generation model (`gemini-2.0-flash-preview-im
    - Two players in a rally with technique focus
    - Coaching drill setup from overhead perspective
 
-2. **Grid Compositing**: Uses Sharp to composite the 4 images into a 2x2 grid (1028x1028px with 4px gap)
+2. **Grid Compositing**: Uses Sharp to composite the 4 images into a 2x2 grid (2056x2056px with 8px gap, minimum 2K resolution)
 
 3. **Style Consistency**: Each image uses the same visual style parameters:
    - Target audience styling (recreational, competitive, coaches, etc.)
@@ -139,7 +139,7 @@ Nano Banana Pro is Gemini's image generation model (`gemini-2.0-flash-preview-im
          ▼
 ┌─────────────────┐
 │ Sharp Composite │
-│ 2x2 Grid (1028px)│
+│ 2x2 Grid (2056px)│
 └────────┬────────┘
          │
          ▼

@@ -22,9 +22,9 @@ const GEMINI_API_BASE = 'https://generativelanguage.googleapis.com/v1beta/models
 // Generation settings
 const MAX_RETRIES = 3;
 const RETRY_DELAY_MS = 2000;
-const IMAGE_SIZE = 512;
-const GRID_GAP = 4;
-const GRID_SIZE = IMAGE_SIZE * 2 + GRID_GAP;
+const IMAGE_SIZE = 1024; // 2K individual images
+const GRID_GAP = 8;
+const GRID_SIZE = IMAGE_SIZE * 2 + GRID_GAP; // 2056px grid
 
 export interface GenerationOptions {
   description: string;
@@ -84,7 +84,7 @@ async function generateSingleImage(
     contents: [{ role: 'user', parts }],
     generationConfig: {
       responseModalities: ['IMAGE'],
-      imageSizeConfig: { aspectRatio: '1:1', imageSize: '1K' },
+      imageSizeConfig: { aspectRatio: '1:1', imageSize: '2K' },
     },
     safetySettings: [
       { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_NONE' },
