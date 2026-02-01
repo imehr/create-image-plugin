@@ -46,11 +46,20 @@ export declare class StyleReferenceManager {
      */
     loadActiveReferenceBase64(templateName: string): string | null;
     /**
-     * Generate a new style reference grid (placeholder for Nano Banana Pro integration)
+     * Check if Nano Banana Pro generation is available
+     */
+    checkGenerationAvailability(): {
+        available: boolean;
+        reason?: string;
+    };
+    /**
+     * Generate a new style reference grid using Nano Banana Pro
      */
     generateStyleReference(templateName: string, options: GenerateReferenceOptions): Promise<{
         success: boolean;
         path?: string;
+        individualPaths?: string[];
+        gridSizeKB?: number;
         error?: string;
     }>;
     /**

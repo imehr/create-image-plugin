@@ -46,6 +46,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.StyleReferenceManager = void 0;
 const fs = __importStar(require("fs"));
 const path = __importStar(require("path"));
+const nano_banana_generator_1 = require("./nano-banana-generator");
 class StyleReferenceManager {
     constructor(repositoryPath) {
         this.templatesDir = path.join(repositoryPath, 'templates');
@@ -132,27 +133,66 @@ class StyleReferenceManager {
         }
     }
     /**
-     * Generate a new style reference grid (placeholder for Nano Banana Pro integration)
+     * Check if Nano Banana Pro generation is available
+     */
+    checkGenerationAvailability() {
+        return (0, nano_banana_generator_1.isGenerationAvailable)();
+    }
+    /**
+     * Generate a new style reference grid using Nano Banana Pro
      */
     async generateStyleReference(templateName, options) {
+        // Check if generation is available
+        const availability = (0, nano_banana_generator_1.isGenerationAvailable)();
+        if (!availability.available) {
+            return { success: false, error: availability.reason };
+        }
         const templateDir = this.getTemplateDir(templateName);
         const refsDir = path.join(templateDir, 'style-references');
         // Ensure directory exists
         if (!fs.existsSync(refsDir)) {
             fs.mkdirSync(refsDir, { recursive: true });
         }
-        const outputPath = path.join(refsDir, `${options.name}.png`);
-        // Build the generation prompt
-        const prompt = this.buildStyleReferencePrompt(options);
-        // TODO: Integrate with actual Nano Banana Pro generation
-        // For now, return a placeholder message
-        console.log(`[StyleReferenceManager] Would generate style reference:`);
+        // Load existing reference image if specified
+        let referenceImageBase64;
+        if (options.refImages && options.refImages.length > 0) {
+            const refPath = options.refImages[0];
+            if (fs.existsSync(refPath)) {
+                referenceImageBase64 = fs.readFileSync(refPath).toString('base64');
+            }
+        }
+        // Load domain knowledge for the template
+        let domainKnowledge;
+        const domainKnowledgePath = path.join(templateDir, 'domain-knowledge.txt');
+        if (fs.existsSync(domainKnowledgePath)) {
+            domainKnowledge = fs.readFileSync(domainKnowledgePath, 'utf-8');
+        }
+        // Generate the style reference grid
+        const generationOptions = {
+            description: options.description || options.name,
+            audience: options.audience,
+            visualStyle: options.visualStyle,
+            referenceImageBase64,
+            domainKnowledge,
+        };
+        console.log(`[StyleReferenceManager] Generating style reference with Nano Banana Pro`);
+        console.log(`  Template: ${templateName}`);
         console.log(`  Name: ${options.name}`);
-        console.log(`  Prompt: ${prompt.substring(0, 100)}...`);
-        console.log(`  Output: ${outputPath}`);
+        console.log(`  Audience: ${options.audience || 'competitive'}`);
+        const result = await (0, nano_banana_generator_1.generateStyleReferenceGrid)(refsDir, options.name, generationOptions);
+        if (result.success && result.gridPath) {
+            // Auto-set as active reference
+            this.setActiveReference(templateName, `${options.name}.png`);
+            return {
+                success: true,
+                path: result.gridPath,
+                individualPaths: result.individualPaths,
+                gridSizeKB: result.gridSizeKB,
+            };
+        }
         return {
             success: false,
-            error: 'Style reference generation not yet implemented. Use the web UI at /illustrations for now.'
+            error: result.errors?.join('; ') || 'Generation failed',
         };
     }
     /**

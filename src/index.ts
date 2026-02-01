@@ -28,6 +28,14 @@ export { StyleReferenceManager } from './style-reference-manager';
 export { DomainKnowledgeManager } from './domain-knowledge-manager';
 export { ActiveTemplateManager } from './active-template-manager';
 
+// Export Nano Banana Pro generator
+export {
+  generateStyleReferenceGrid,
+  isGenerationAvailable,
+  GenerationOptions,
+  GenerationResult
+} from './nano-banana-generator';
+
 /**
  * Create and initialize the create-image plugin
  */

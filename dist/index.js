@@ -43,7 +43,7 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
     for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ActiveTemplateManager = exports.DomainKnowledgeManager = exports.StyleReferenceManager = exports.ProviderManager = exports.TemplateLoader = exports.ConfigLoader = exports.ImageOrchestrator = void 0;
+exports.isGenerationAvailable = exports.generateStyleReferenceGrid = exports.ActiveTemplateManager = exports.DomainKnowledgeManager = exports.StyleReferenceManager = exports.ProviderManager = exports.TemplateLoader = exports.ConfigLoader = exports.ImageOrchestrator = void 0;
 exports.createPlugin = createPlugin;
 const path = __importStar(require("path"));
 const os = __importStar(require("os"));
@@ -69,6 +69,10 @@ var domain_knowledge_manager_2 = require("./domain-knowledge-manager");
 Object.defineProperty(exports, "DomainKnowledgeManager", { enumerable: true, get: function () { return domain_knowledge_manager_2.DomainKnowledgeManager; } });
 var active_template_manager_2 = require("./active-template-manager");
 Object.defineProperty(exports, "ActiveTemplateManager", { enumerable: true, get: function () { return active_template_manager_2.ActiveTemplateManager; } });
+// Export Nano Banana Pro generator
+var nano_banana_generator_1 = require("./nano-banana-generator");
+Object.defineProperty(exports, "generateStyleReferenceGrid", { enumerable: true, get: function () { return nano_banana_generator_1.generateStyleReferenceGrid; } });
+Object.defineProperty(exports, "isGenerationAvailable", { enumerable: true, get: function () { return nano_banana_generator_1.isGenerationAvailable; } });
 /**
  * Create and initialize the create-image plugin
  */

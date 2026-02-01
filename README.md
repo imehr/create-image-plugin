@@ -9,6 +9,7 @@ Universal AI image generation plugin with template management, style references,
 - **Style References**: Visual style guides for consistent image generation
 - **Domain Knowledge**: System instructions for accurate content generation
 - **Active Template Tracking**: Default template selection per session
+- **Nano Banana Pro**: Generate 2x2 style reference grids using Gemini's image generation model
 
 ## Installation
 
@@ -91,6 +92,117 @@ templates/{topic}/{style}/
 | Gemini | 1 | `GOOGLE_API_KEY` |
 | VertexAI | 2 | `GOOGLE_CLOUD_PROJECT` |
 | OpenRouter | 3 | `OPENROUTER_API_KEY` |
+
+## Nano Banana Pro (Style Reference Generator)
+
+Nano Banana Pro is Gemini's image generation model (`gemini-2.0-flash-preview-image-generation`) used to create style reference images for consistent visual generation.
+
+### How It Works
+
+1. **Four Prompt Variations**: Generates 4 individual images with varied coaching scenarios:
+   - Player demonstrating proper form at the kitchen line
+   - Court layout with player positioning from elevated angle
+   - Two players in a rally with technique focus
+   - Coaching drill setup from overhead perspective
+
+2. **Grid Compositing**: Uses Sharp to composite the 4 images into a 2x2 grid (1028x1028px with 4px gap)
+
+3. **Style Consistency**: Each image uses the same visual style parameters:
+   - Target audience styling (recreational, competitive, coaches, etc.)
+   - Visual preferences from template configuration
+   - Domain knowledge injected as system instruction
+   - Optional reference image for style matching
+
+### Generation Flow
+
+```
+┌─────────────────┐
+│ Template Config │
+│ + Domain Knowledge │
+│ + Style Preferences │
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│ Build 4 Prompts │
+│ with variations │
+└────────┬────────┘
+         │
+    ┌────┴────┐
+    ▼    ▼    ▼    ▼
+┌────┐┌────┐┌────┐┌────┐
+│ 1  ││ 2  ││ 3  ││ 4  │  Gemini API calls
+└─┬──┘└─┬──┘└─┬──┘└─┬──┘  (with retry logic)
+  │     │     │     │
+  └─────┴─────┴─────┘
+         │
+         ▼
+┌─────────────────┐
+│ Sharp Composite │
+│ 2x2 Grid (1028px)│
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│ style-ref.png   │
+│ + 4 individual  │
+└─────────────────┘
+```
+
+### Audience Styles
+
+| Audience | Visual Approach |
+|----------|-----------------|
+| recreational | Friendly, approachable, casual sport photography with warm colours |
+| young-athletes | Dynamic, energetic, modern sports marketing with bold colours |
+| competitive | Professional, intense, sports magazine editorial quality |
+| coaches | Instructional, clear, technical demonstration focus |
+| beginners | Welcoming, simple, easy-to-understand visual guides |
+| seniors | Dignified, active lifestyle, age-appropriate representation |
+| tournament | Competitive edge, professional sports photography |
+
+### API Configuration
+
+```bash
+# Required for Nano Banana Pro
+export GOOGLE_API_KEY=your_gemini_api_key
+# or
+export GEMINI_API_KEY=your_gemini_api_key
+```
+
+### Usage via Plugin
+
+```typescript
+import { createPlugin } from 'create-image';
+
+const plugin = await createPlugin();
+
+// Check if generation is available
+const availability = plugin.styleRefManager.checkGenerationAvailability();
+if (!availability.available) {
+  console.log('Missing API key:', availability.reason);
+}
+
+// Generate a new style reference
+const result = await plugin.styleRefManager.generateStyleReference('sports/illustrative', {
+  name: 'competitive-training',
+  description: 'Professional training drills',
+  audience: 'competitive',
+  visualStyle: 'high contrast, clear technique visibility',
+});
+
+if (result.success) {
+  console.log('Generated:', result.path);
+  console.log('Size:', result.gridSizeKB, 'KB');
+  console.log('Individual images:', result.individualPaths);
+}
+```
+
+### Retry Logic
+
+- 3 retry attempts per image with exponential backoff
+- 1.5 second delay between image generations to avoid rate limiting
+- Graceful degradation: if some images fail, uses available images for grid
 
 ## Marketplace
 
