@@ -11,10 +11,12 @@
  *
  * This matches the web UI implementation at /illustrations
  */
+export type Resolution = '2K' | '4K';
 export interface GenerationOptions {
     description: string;
     audience?: string;
     visualStyle?: string;
+    resolution?: Resolution;
     referenceImageBase64?: string;
     domainKnowledge?: string;
 }
@@ -25,6 +27,7 @@ export interface GenerationResult {
     gridSizeKB?: number;
     generatedCount?: number;
     failedCount?: number;
+    resolution?: Resolution;
     errors?: string[];
 }
 export declare function generateStyleReferenceGrid(outputDir: string, baseName: string, options: GenerationOptions): Promise<GenerationResult>;

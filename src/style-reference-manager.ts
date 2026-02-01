@@ -15,7 +15,8 @@ import {
   generateStyleReferenceGrid,
   isGenerationAvailable,
   GenerationOptions,
-  GenerationResult
+  GenerationResult,
+  Resolution
 } from './nano-banana-generator';
 
 export interface StyleReferenceInfo {
@@ -27,6 +28,7 @@ export interface StyleReferenceInfo {
 }
 
 export interface GenerateReferenceOptions {
+  resolution?: '2K' | '4K';
   name: string;
   description?: string;
   audience?: string;
@@ -180,6 +182,7 @@ export class StyleReferenceManager {
 
     // Generate the style reference grid
     const generationOptions: GenerationOptions = {
+      resolution: options.resolution || '2K',
       description: options.description || options.name,
       audience: options.audience,
       visualStyle: options.visualStyle,

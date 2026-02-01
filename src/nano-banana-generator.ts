@@ -22,14 +22,20 @@ const GEMINI_API_BASE = 'https://generativelanguage.googleapis.com/v1beta/models
 // Generation settings
 const MAX_RETRIES = 3;
 const RETRY_DELAY_MS = 2000;
-const IMAGE_SIZE = 1024; // 2K individual images
-const GRID_GAP = 8;
-const GRID_SIZE = IMAGE_SIZE * 2 + GRID_GAP; // 2056px grid
+
+// Resolution configurations
+const RESOLUTION_CONFIG = {
+  '2K': { tileSize: 1024, gap: 8 },
+  '4K': { tileSize: 2048, gap: 8 },
+} as const;
+
+export type Resolution = '2K' | '4K';
 
 export interface GenerationOptions {
   description: string;
   audience?: string;
   visualStyle?: string;
+  resolution?: Resolution;
   referenceImageBase64?: string;
   domainKnowledge?: string;
 }
@@ -41,6 +47,7 @@ export interface GenerationResult {
   gridSizeKB?: number;
   generatedCount?: number;
   failedCount?: number;
+  resolution?: Resolution;
   errors?: string[];
 }
 
@@ -139,7 +146,12 @@ async function generateSingleImage(
   return { success: false, error: lastError };
 }
 
-async function compositeToGrid(images: Buffer[]): Promise<Buffer> {
+async function compositeToGrid(images: Buffer[], resolution: Resolution = '2K'): Promise<Buffer> {
+  const config = RESOLUTION_CONFIG[resolution];
+  const tileSize = config.tileSize;
+  const gap = config.gap;
+  const gridSize = tileSize * 2 + gap;
+
   try {
     const sharp = await import('sharp').then(m => m.default).catch(() => null);
 
@@ -149,19 +161,19 @@ async function compositeToGrid(images: Buffer[]): Promise<Buffer> {
       const resizedImages = await Promise.all(
         images.slice(0, 4).map(async (img) => {
           try {
-            return await sharp(img).resize(IMAGE_SIZE, IMAGE_SIZE, { fit: 'cover' }).png().toBuffer();
+            return await sharp(img).resize(tileSize, tileSize, { fit: 'cover' }).png().toBuffer();
           } catch { return img; }
         })
       );
 
       return await sharp({
-        create: { width: GRID_SIZE, height: GRID_SIZE, channels: 4, background: { r: 26, g: 35, b: 50, alpha: 1 } },
+        create: { width: gridSize, height: gridSize, channels: 4, background: { r: 26, g: 35, b: 50, alpha: 1 } },
       })
         .composite([
           { input: resizedImages[0], left: 0, top: 0 },
-          { input: resizedImages[1], left: IMAGE_SIZE + GRID_GAP, top: 0 },
-          { input: resizedImages[2], left: 0, top: IMAGE_SIZE + GRID_GAP },
-          { input: resizedImages[3], left: IMAGE_SIZE + GRID_GAP, top: IMAGE_SIZE + GRID_GAP },
+          { input: resizedImages[1], left: tileSize + gap, top: 0 },
+          { input: resizedImages[2], left: 0, top: tileSize + gap },
+          { input: resizedImages[3], left: tileSize + gap, top: tileSize + gap },
         ])
         .png({ compressionLevel: 9 })
         .toBuffer();
@@ -176,7 +188,7 @@ function buildPrompt(variation: string, options: GenerationOptions): string {
   const audienceStyle = AUDIENCE_STYLES[options.audience || 'competitive'] || AUDIENCE_STYLES['competitive'];
 
   const parts = [
-    'Generate a professional sports training illustration for pickleball coaching.',
+    'Generate a professional sports training illustration for coaching.',
     '',
     `SCENE: ${variation}`,
     `TARGET AUDIENCE: ${options.audience || 'competitive'}`,
@@ -217,11 +229,15 @@ export async function generateStyleReferenceGrid(
     return { success: false, errors: ['No API key. Set GOOGLE_API_KEY or GEMINI_API_KEY.'] };
   }
 
+  const resolution: Resolution = options.resolution || '2K';
+  const config = RESOLUTION_CONFIG[resolution];
+
   if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir, { recursive: true });
 
   console.log(`[NanoBanana] Generating style reference: ${baseName}`);
   console.log(`  Description: ${options.description || 'default'}`);
   console.log(`  Audience: ${options.audience || 'competitive'}`);
+  console.log(`  Resolution: ${resolution} (${config.tileSize * 2 + config.gap}px grid)`);
 
   const individualImages: Buffer[] = [];
   const individualPaths: string[] = [];
@@ -256,13 +272,13 @@ export async function generateStyleReferenceGrid(
   }
 
   if (individualImages.length === 0) {
-    return { success: false, generatedCount: 0, failedCount: 4, errors };
+    return { success: false, generatedCount: 0, failedCount: 4, resolution, errors };
   }
 
-  console.log(`[NanoBanana] Compositing ${individualImages.length} images...`);
+  console.log(`[NanoBanana] Compositing ${individualImages.length} images at ${resolution}...`);
 
   try {
-    const gridBuffer = await compositeToGrid(individualImages);
+    const gridBuffer = await compositeToGrid(individualImages, resolution);
     const gridPath = path.join(outputDir, `${baseName}.png`);
     fs.writeFileSync(gridPath, gridBuffer);
 
@@ -276,11 +292,12 @@ export async function generateStyleReferenceGrid(
       gridSizeKB,
       generatedCount,
       failedCount: 4 - generatedCount,
+      resolution,
       errors: errors.length > 0 ? errors : undefined,
     };
   } catch (error) {
     errors.push(`Grid failed: ${error instanceof Error ? error.message : error}`);
-    return { success: false, individualPaths, generatedCount, failedCount: 4 - generatedCount, errors };
+    return { success: false, individualPaths, generatedCount, failedCount: 4 - generatedCount, resolution, errors };
   }
 }
 

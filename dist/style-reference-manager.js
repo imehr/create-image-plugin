@@ -169,6 +169,7 @@ class StyleReferenceManager {
         }
         // Generate the style reference grid
         const generationOptions = {
+            resolution: options.resolution || '2K',
             description: options.description || options.name,
             audience: options.audience,
             visualStyle: options.visualStyle,

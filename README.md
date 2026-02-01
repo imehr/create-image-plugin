@@ -215,3 +215,26 @@ MIT
 ## Author
 
 imehr - https://github.com/imehr
+
+### Resolution Options
+
+The generator supports two output resolutions:
+
+| Resolution | Individual Images | Grid Size | Use Case |
+|------------|-------------------|-----------|----------|
+| **2K** (default) | 1024×1024px | 2056×2056px | Screen display, web |
+| **4K** | 2048×2048px | 4104×4104px | Print, large displays |
+
+```typescript
+// Generate at 2K (default)
+const result2k = await plugin.styleRefManager.generateStyleReference('sports/illustrative', {
+  name: 'training-2k',
+  resolution: '2K',
+});
+
+// Generate at 4K for print quality
+const result4k = await plugin.styleRefManager.generateStyleReference('sports/illustrative', {
+  name: 'training-4k',
+  resolution: '4K',
+});
+```

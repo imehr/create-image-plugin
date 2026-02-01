@@ -16,6 +16,7 @@ export interface StyleReferenceInfo {
     isActive: boolean;
 }
 export interface GenerateReferenceOptions {
+    resolution?: '2K' | '4K';
     name: string;
     description?: string;
     audience?: string;
