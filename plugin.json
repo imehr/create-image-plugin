@@ -1,0 +1,69 @@
+{
+  "name": "create-image",
+  "version": "2.0.0",
+  "displayName": "AI Image Generator",
+  "description": "Universal AI image generation with template management, style references, domain knowledge editing, and multi-provider support",
+  "main": "dist/orchestrator.js",
+  "author": "imehr",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/imehr/create-image-plugin"
+  },
+  "marketplace": "imehr0marketplace",
+  "commands": [
+    {
+      "name": "create-image",
+      "description": "Generate AI images with templates and provider fallback",
+      "file": "commands/create-image.md"
+    },
+    {
+      "name": "create-image-templates",
+      "description": "List and manage AI image generation templates",
+      "file": "commands/create-image-templates.md"
+    },
+    {
+      "name": "create-image-refs",
+      "description": "Manage style reference images for templates",
+      "file": "commands/create-image-refs.md"
+    },
+    {
+      "name": "create-image-rules",
+      "description": "View and edit domain knowledge (system instructions)",
+      "file": "commands/create-image-rules.md"
+    }
+  ],
+  "skills": [
+    {
+      "name": "create-image",
+      "path": "skills/create-image",
+      "commands": ["create-image", "create-image-templates", "create-image-refs", "create-image-rules"]
+    }
+  ],
+  "config": {
+    "repoPath": "~/Documents/github/image-generator",
+    "providers": {
+      "primary": "gemini",
+      "fallback": "openrouter"
+    }
+  },
+  "configuration": {
+    "env_file": ".env",
+    "required_vars": [],
+    "optional_vars": [
+      "GOOGLE_API_KEY",
+      "GEMINI_API_KEY",
+      "OPENROUTER_API_KEY",
+      "GOOGLE_CLOUD_PROJECT"
+    ]
+  },
+  "keywords": [
+    "claude-code-plugin",
+    "image-generation",
+    "ai",
+    "gemini",
+    "openrouter",
+    "templates",
+    "style-references"
+  ]
+}

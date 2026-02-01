@@ -1,0 +1,34 @@
+{
+  "name": "create-image",
+  "version": "2.0.0",
+  "description": "Universal AI image generation plugin for Claude Code with template management, style references, and multi-provider support",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch",
+    "clean": "rm -rf dist"
+  },
+  "keywords": [
+    "claude-code-plugin",
+    "image-generation",
+    "ai",
+    "gemini",
+    "openrouter",
+    "vertexai",
+    "templates",
+    "style-references",
+    "domain-knowledge"
+  ],
+  "author": "imehr",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/imehr/create-image-plugin.git"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "typescript": "^5.3.3"
+  },
+  "dependencies": {}
+}
